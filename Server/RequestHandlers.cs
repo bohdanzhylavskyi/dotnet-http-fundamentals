@@ -2,34 +2,34 @@
 
 namespace Server
 {
-    internal static class RequestHandlers
+    public static class RequestHandlers
     {
         public static void GetMyName(HttpListenerContext context)
         {
             HttpUtils.WriteStringResponse(context, "Bohdan");
         }
 
-        public static void Information(HttpListenerContext context)
+        public static void InformationStatusCode(HttpListenerContext context)
         {
-            HttpUtils.WriteStringResponse(context, "Information", 100);
+            HttpUtils.WriteStringResponse(context, "Information", 199);
         }
 
-        public static void Success(HttpListenerContext context)
+        public static void SuccessStatusCode(HttpListenerContext context)
         {
             HttpUtils.WriteStringResponse(context, "Success", 201);
         }
 
-        public static void Redirection(HttpListenerContext context)
+        public static void RedirectionStatusCode(HttpListenerContext context)
         {
             HttpUtils.WriteStringResponse(context, "Redirection", 301);
         }
 
-        public static void ClientError(HttpListenerContext context)
+        public static void ClientErrorStatusCode(HttpListenerContext context)
         {
-            HttpUtils.WriteStringResponse(context, "ClientError", 401);
+            HttpUtils.WriteStringResponse(context, "Client Error", 401);
         }
 
-        public static void ServerError(HttpListenerContext context)
+        public static void ServerErrorStatusCode(HttpListenerContext context)
         {
             HttpUtils.WriteStringResponse(context, "Server Error", 500);
         }

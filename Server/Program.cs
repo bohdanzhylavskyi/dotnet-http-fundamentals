@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace Server
 {
@@ -6,16 +7,20 @@ namespace Server
 
     internal class Program
     {
-        private static Dictionary<string, RequestHandler> Handlers = new();
+        private static Dictionary<string, RequestHandler> _requestHandlers = new();
 
         static void Main(string[] args)
         {
-            SetupHandlers();
+            SetupRequestHandlers();
+
+            var serverUrl = ResolveServerUrl();
 
             HttpListener listener = new HttpListener();
 
-            listener.Prefixes.Add("http://localhost:8888/");
+            listener.Prefixes.Add(serverUrl);
             listener.Start();
+
+            Console.WriteLine($"Server is listening on url '{serverUrl}'");
 
             while (true)
             {
@@ -27,12 +32,24 @@ namespace Server
             listener.Stop();
         }
 
+        private static string ResolveServerUrl()
+        {
+            var folder = Directory.GetCurrentDirectory();
+
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            return config.GetSection("ServerUrl").Value;
+        }
+
         private static void HandleRequest(HttpListenerContext context)
         {
             var request = context.Request;
             string path = request.Url.AbsolutePath;
 
-            Handlers.TryGetValue(path, out RequestHandler handler);
+            _requestHandlers.TryGetValue(path, out RequestHandler handler);
 
             if (handler != null)
             {
@@ -46,19 +63,22 @@ namespace Server
 
         private static void NotFound(HttpListenerContext context)
         {
-            HttpUtils.WriteStringResponse(context, "Not Found");
+            HttpUtils.WriteStringResponse(context, "Not Found", 404);
         }
 
-        private static void SetupHandlers()
+        private static void SetupRequestHandlers()
         {
-            Handlers.Add("/MyName", RequestHandlers.GetMyName);
-            Handlers.Add("/Information", RequestHandlers.Information);
-            Handlers.Add("/Success", RequestHandlers.Success);
-            Handlers.Add("/Redirection", RequestHandlers.Redirection);
-            Handlers.Add("/ClientError", RequestHandlers.ClientError);
-            Handlers.Add("/ServerError", RequestHandlers.ServerError);
-            Handlers.Add("/MyNameByHeader", RequestHandlers.MyNameByHeader);
-            Handlers.Add("/MyNameByCookies", RequestHandlers.MyNameByCookies);
+            _requestHandlers.Add("/MyName", RequestHandlers.GetMyName);
+
+            _requestHandlers.Add("/Information", RequestHandlers.InformationStatusCode);
+            _requestHandlers.Add("/Success", RequestHandlers.SuccessStatusCode);
+            _requestHandlers.Add("/Redirection", RequestHandlers.RedirectionStatusCode);
+            _requestHandlers.Add("/ClientError", RequestHandlers.ClientErrorStatusCode);
+            _requestHandlers.Add("/ServerError", RequestHandlers.ServerErrorStatusCode);
+            
+            _requestHandlers.Add("/MyNameByHeader", RequestHandlers.MyNameByHeader);
+            
+            _requestHandlers.Add("/MyNameByCookies", RequestHandlers.MyNameByCookies);
         }
     }
 }

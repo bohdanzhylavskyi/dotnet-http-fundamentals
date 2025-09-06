@@ -6,23 +6,14 @@ namespace Client
     internal class Program
     {
         static readonly HttpClient client = new HttpClient();
-        static string serverUrl;
+        static readonly string serverUrl = ResolveServerUrl();
 
         static async Task Main(string[] args)
         {
-            var folder = Directory.GetCurrentDirectory();
-
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false)
-                .Build();
-
-            serverUrl = config.GetSection("ServerUrl").Value;
-
             var tasks = new List<Func<Task>>()
             {
                 ExecuteTask1,
-                //ExecuteTask2,
+                ExecuteTask2,
                 ExecuteTask3,
                 ExecuteTask4,
             };
@@ -51,7 +42,7 @@ namespace Client
         {
             var pathes = new List<string>()
             {
-                "Information",
+                //"Information",
                 "Success",
                 "Redirection",
                 "ClientError",
@@ -60,19 +51,12 @@ namespace Client
 
             foreach (var path in pathes)
             {
-                try
-                {
-                    var url = CombineUrl(serverUrl, path);
+                var url = CombineUrl(serverUrl, path);
 
-                    using HttpResponseMessage response = await client.GetAsync(url);
-                    string responseBody = await response.Content.ReadAsStringAsync();
+                using HttpResponseMessage response = await client.GetAsync(url);
+                string responseBody = await response.Content.ReadAsStringAsync();
 
-                    Console.WriteLine($"{url}-${response.StatusCode}");
-                    //Console.WriteLine(responseBody);
-                } catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+                Console.WriteLine($"Url: {url}, Status Code: {response.StatusCode} ({(int) response.StatusCode})");
             }
         }
 
@@ -84,7 +68,7 @@ namespace Client
 
             response.Headers.TryGetValues("X-MyName", out var headerValue);
 
-            Console.WriteLine($"Url: {url}\nResponse 'X-MyName' header value: {string.Join(", ", headerValue)}");
+            Console.WriteLine($"Url: {url}\nResponse 'X-MyName' Header Value: {string.Join(", ", headerValue)}");
         }
 
         private static async Task ExecuteTask4()
@@ -107,12 +91,23 @@ namespace Client
 
             Console.WriteLine($"Url: {url}");
             Console.WriteLine($"Cookies: {string.Join(", ", cookiesList)}");
-
         }
 
-        private static string CombineUrl(string baseUrl, string path)
+        private static string CombineUrl(string originUrl, string path)
         {
-            return new Uri(new Uri(baseUrl), path).ToString();
+            return new Uri(new Uri(originUrl), path).ToString();
+        }
+
+        private static string ResolveServerUrl()
+        {
+            var folder = Directory.GetCurrentDirectory();
+
+            var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            return config.GetSection("ServerUrl").Value;
         }
     }
 }

@@ -4,7 +4,10 @@ namespace Server
 {
     internal static class HttpUtils
     {
-        public static void WriteStringResponse(HttpListenerContext context, string responseString, int statusCode = 200)
+        public static void WriteStringResponse(
+            HttpListenerContext context,
+            string responseString,
+            int statusCode = 200)
         {
             HttpListenerResponse response = context.Response;
 
