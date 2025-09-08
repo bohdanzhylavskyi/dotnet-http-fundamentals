@@ -12,10 +12,10 @@ namespace Client
         {
             var tasks = new List<Func<Task>>()
             {
-                ExecuteTask1,
+                //ExecuteTask1,
                 ExecuteTask2,
-                ExecuteTask3,
-                ExecuteTask4,
+                //ExecuteTask3,
+                //ExecuteTask4,
             };
 
             for (var i = 0; i < tasks.Count; i++)
@@ -42,16 +42,18 @@ namespace Client
         {
             var pathes = new List<string>()
             {
-                //"Information",
-                "Success",
-                "Redirection",
-                "ClientError",
-                "ServerError",
+                "Information",
+                //"Success",
+                //"Redirection",
+                //"ClientError",
+                //"ServerError",
             };
 
             foreach (var path in pathes)
             {
                 var url = CombineUrl(serverUrl, path);
+
+                client.DefaultRequestHeaders.ExpectContinue = false;
 
                 using HttpResponseMessage response = await client.GetAsync(url);
                 string responseBody = await response.Content.ReadAsStringAsync();

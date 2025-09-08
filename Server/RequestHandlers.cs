@@ -11,7 +11,7 @@ namespace Server
 
         public static void InformationStatusCode(HttpListenerContext context)
         {
-            HttpUtils.WriteStringResponse(context, "Information", 199);
+            HttpUtils.WriteStringResponse(context, "Information", 101);
         }
 
         public static void SuccessStatusCode(HttpListenerContext context)
